@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Sleepy Hollow Frame Narrative Activity</title>
+  <style>
+    :root {
+      --bg-color: #0d0b09;
+      --card-bg: #211c18;
+      --card-border: #8c4a16;
+      --text-main: #f5f2eb;
+      --text-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.5;
+    }
+
+    h1 {
+      color: var(--text-gold);
+      font-family: 'Times New Roman', serif;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 2.2em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* Directions Banner */
+    .instructions-card {
+      background-color: #1a1512;
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px 24px;
+      max-width: 950px;
+      width: 100%;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      box-sizing: border-box;
+    }
+
+    .instructions-card p {
+      margin: 6px 0;
+      font-size: 1.1em;
+      color: #e7e5e4;
+    }
+
+    .instructions-card .note-highlight {
+      color: var(--text-gold);
+      font-weight: bold;
+    }
+
+    /* Main Visual Diagram Container */
+    .visual-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 950px;
+      background: #191410;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      margin-bottom: 25px;
+    }
+
+    .hero-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Drop Zone Overlay Row */
+    .drop-zones-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 15px;
+      background: #171310;
+      border-top: 2px solid var(--card-border);
+      box-sizing: border-box;
+    }
+
+    .doll-drop-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .doll-header-label {
+      font-size: 0.95em;
+      font-weight: bold;
+      color: var(--text-gold);
+      text-align: center;
+      margin-bottom: 8px;
+      font-family: sans-serif;
+    }
+
+    .drop-target {
+      width: 100%;
+      min-height: 135px;
+      background: var(--card-bg);
+      border: 2px dashed var(--card-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      box-sizing: border-box;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .drop-target.drag-over {
+      background: #3d1c06;
+      border-color: var(--text-gold);
+    }
+
+    /* Cards Pool */
+    .cards-pool-container {
+      width: 100%;
+      max-width: 950px;
+      background: #191410;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 18px;
+      box-sizing: border-box;
+      margin-bottom: 25px;
+    }
+
+    .cards-pool-container h2 {
+      font-size: 1.2em;
+      color: var(--text-gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #3d3024;
+      padding-bottom: 6px;
+      font-family: sans-serif;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .draggable-card {
+      background: #33261c;
+      color: #f5f5f4;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #b45309;
+      cursor: grab;
+      font-family: sans-serif;
+      font-size: 0.9em;
+      line-height: 1.4;
+      transition: transform 0.2s, background 0.2s;
+      user-select: none;
+      text-align: left;
+    }
+
+    .draggable-card:hover {
+      background: #4a3424;
+      transform: translateY(-2px);
+    }
+
+    .draggable-card.selected {
+      border-color: var(--text-gold);
+      box-shadow: 0 0 10px var(--text-gold);
+    }
+
+    /* Controls & Feedback */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    button.primary-btn {
+      background-color: #b45309;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 1.1em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button.primary-btn:hover {
+      background-color: #d97706;
+      transform: scale(1.02);
+    }
+
+    button.reveal-btn {
+      background-color: #2a221b;
+      color: var(--text-gold);
+      border: 1px solid var(--card-border);
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 14px;
+      font-family: sans-serif;
+    }
+
+    button.reveal-btn:hover {
+      background-color: #3d3024;
+    }
+
+    #feedback {
+      font-weight: bold;
+      font-size: 1.2em;
+      min-height: 30px;
+      font-family: sans-serif;
+    }
+
+    /* Success Box */
+    .success-box {
+      display: none;
+      background: #042f22;
+      border: 2px solid var(--accent-green);
+      padding: 24px;
+      border-radius: 10px;
+      max-width: 950px;
+      width: 100%;
+      color: #ecfdf5;
+      box-sizing: border-box;
+      font-family: 'Georgia', serif;
+      margin-bottom: 30px;
+    }
+
+    .success-box h3 {
+      margin-top: 0;
+      color: #34d399;
+      font-size: 1.4em;
+    }
+
+    .notebook-reminder {
+      background-color: #064e3b;
+      border-left: 4px solid #34d399;
+      padding: 10px 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .reflection-answer {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: #022018;
+      border-left: 4px solid #34d399;
+      border-radius: 6px;
+      font-family: sans-serif;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🪆 The Sleepy Hollow Frame Narrative Activity</h1>
+
+  <!-- Directions Banner -->
+  <div class="instructions-card">
+    <p><strong>Instructions:</strong> Drag each description card from the bottom bank into its correct slot directly beneath the matching nesting doll layer (from the outer layer on the left to the inner core tale on the right).</p>
+    <p class="note-highlight">📝 Important Note Requirement: Once you achieve 100% accuracy, complete the reflection question in your class notes and record the key insights in your notes as well!</p>
+  </div>
+
+  <!-- Hero Visual & Drop Zones -->
+  <div class="visual-wrapper">
+    <img src="Gemini_Generated_Image_oszpjposzpjposzp.jpeg" alt="Russian Nesting Doll Frame Narrative Diagram" class="hero-image">
+
+    <div class="drop-zones-row">
+      <div class="doll-drop-column">
+        <div class="doll-header-label">Outer Layer</div>
+        <div class="drop-target" data-slot="1"></div>
+      </div>
+
+      <div class="doll-drop-column">
+        <div class="doll-header-label">2nd Layer</div>
+        <div class="drop-target" data-slot="2"></div>
+      </div>
+
+      <div class="doll-drop-column">
+        <div class="doll-header-label">3rd Layer</div>
+        <div class="drop-target" data-slot="3"></div>
+      </div>
+
+      <div class="doll-drop-column">
+        <div class="doll-header-label">4th Layer</div>
+        <div class="drop-target" data-slot="4"></div>
+      </div>
+
+      <div class="doll-drop-column">
+        <div class="doll-header-label">Core Story</div>
+        <div class="drop-target" data-slot="5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards Pool with Descriptions Only (Titles Removed) -->
+  <div class="cards-pool-container">
+    <h2>Descriptor Cards (Drag or tap to place)</h2>
+    <div class="cards-grid" id="cardsGrid">
+      
+      <!-- Layer 3 -->
+      <div class="draggable-card" draggable="true" id="card-3" data-layer="3">
+        The eccentric Dutch researcher whose left-behind papers contained the written manuscript.
+      </div>
+
+      <!-- Layer 1 -->
+      <div class="draggable-card" draggable="true" id="card-1" data-layer="1">
+        The actual historical writer publishing the story in 1820s America.
+      </div>
+
+      <!-- Layer 5 -->
+      <div class="draggable-card" draggable="true" id="card-5" data-layer="5">
+        The enclosed ghost story set within the quiet glen of Sleepy Hollow.
+      </div>
+
+      <!-- Layer 2 -->
+      <div class="draggable-card" draggable="true" id="card-2" data-layer="2">
+        The imaginary gentleman traveler whose "Sketch Book" contains the collected paper.
+      </div>
+
+      <!-- Layer 4 -->
+      <div class="draggable-card" draggable="true" id="card-4" data-layer="4">
+        The elderly storyteller who originally told the tale aloud at a Manhattan gathering.
+      </div>
+
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="primary-btn" onclick="checkAnswers()">Check Narrative Alignment</button>
+    <div id="feedback"></div>
+  </div>
+
+  <!-- Debrief & Notes Prompt -->
+  <div class="success-box" id="successBox">
+    <h3>🎉 Perfect Alignment!</h3>
+
+    <div class="notebook-reminder">
+      📌 ACTION REQUIRED FOR YOUR NOTES: Please answer the prompt below in your student notebook, then reveal and add the key insights to your notes.
+    </div>
+
+    <p><strong>Reflection Prompt (Write in your class notes):</strong></p>
+    <p><em>Why does Washington Irving place the tale inside four distinct narrative layers rather than simply presenting it as a straightforward ghost story? How does this structure shape the reader's trust in the story?</em></p>
+    
+    <button class="reveal-btn" onclick="toggleAnswer()">Show Key Insights (Add to Notes) ▼</button>
+
+    <div class="reflection-answer" id="reflectionAnswer">
+      <strong>Key Literary Insights to Copy Into Notes:</strong>
+      <ul>
+        <li><strong>Folkloric Realism:</strong> Multi-layered narration imitates authentic oral tradition and regional folklore passed down across generations.</li>
+        <li><strong>Ambiguity & Unreliability:</strong> Filtering the narrative through multiple storytellers creates artistic distance, leaving room for mystery regarding whether the event was supernatural or human trickery.</li>
+        <li><strong>Satirical Frame:</strong> Attributing the notes to an eccentric antiquarian allows Irving to satirize human superstition while shielding himself from criticism.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const draggables = document.querySelectorAll('.draggable-card');
+    const targets = document.querySelectorAll('.drop-target');
+    let selectedCard = null;
+
+    draggables.forEach(draggable => {
+      draggable.addEventListener('dragstart', () => {
+        draggable.classList.add('dragging');
+      });
+
+      draggable.addEventListener('dragend', () => {
+        draggable.classList.remove('dragging');
+      });
+
+      draggable.addEventListener('click', () => {
+        if (selectedCard === draggable) {
+          selectedCard.classList.remove('selected');
+          selectedCard = null;
+        } else {
+          if (selectedCard) selectedCard.classList.remove('selected');
+          selectedCard = draggable;
+          selectedCard.classList.add('selected');
+        }
+      });
+    });
+
+    targets.forEach(target => {
+      target.addEventListener('dragover', e => {
+        e.preventDefault();
+        target.classList.add('drag-over');
+      });
+
+      target.addEventListener('dragleave', () => {
+        target.classList.remove('drag-over');
+      });
+
+      target.addEventListener('drop', e => {
+        e.preventDefault();
+        target.classList.remove('drag-over');
+        const draggable = document.querySelector('.dragging');
+        if (draggable) {
+          if (target.children.length > 0) {
+            document.getElementById('cardsGrid').appendChild(target.children[0]);
+          }
+          target.appendChild(draggable);
+        }
+      });
+
+      target.addEventListener('click', () => {
+        if (selectedCard) {
+          if (target.children.length > 0) {
+            document.getElementById('cardsGrid').appendChild(target.children[0]);
+          }
+          target.appendChild(selectedCard);
+          selectedCard.classList.remove('selected');
+          selectedCard = null;
+        }
+      });
+    });
+
+    function checkAnswers() {
+      let correctCount = 0;
+      targets.forEach(target => {
+        const slotNumber = target.getAttribute('data-slot');
+        const childCard = target.querySelector('.draggable-card');
+        if (childCard && childCard.getAttribute('data-layer') === slotNumber) {
+          correctCount++;
+          target.style.borderColor = '#10b981';
+          target.style.backgroundColor = '#064e3b';
+        } else if (childCard) {
+          target.style.borderColor = '#ef4444';
+          target.style.backgroundColor = '#450a0a';
+        } else {
+          target.style.borderColor = '#8c4a16';
+          target.style.backgroundColor = '#211c18';
+        }
+      });
+
+      const feedback = document.getElementById('feedback');
+      const successBox = document.getElementById('successBox');
+
+      if (correctCount === 5) {
+        feedback.style.color = '#34d399';
+        feedback.innerText = '✨ Outstanding! All 5 layers align perfectly! Proceed to your notes below.';
+        successBox.style.display = 'block';
+        successBox.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        feedback.style.color = '#f59e0b';
+        feedback.innerText = `You have ${correctCount} out of 5 layers correct. Adjust your cards and try again!`;
+        successBox.style.display = 'none';
+      }
+    }
+
+    function toggleAnswer() {
+      const answer = document.getElementById('reflectionAnswer');
+      const btn = document.querySelector('.reveal-btn');
+      if (answer.style.display === 'block') {
+        answer.style.display = 'none';
+        btn.innerText = 'Show Key Insights (Add to Notes) ▼';
+      } else {
+        answer.style.display = 'block';
+        btn.innerText = 'Hide Key Insights ▲';
+      }
+    }
+  </script>
+</body>
+</html>
